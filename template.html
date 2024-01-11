@@ -1,25 +1,42 @@
  <!DOCTYPE html>
 <html>
+<!-- Note: opening this as a file will not work with leading / in hrefs  -->
 <head>
     <meta charset="utf-8"/>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>Help</title>
 </head>
 <body>
     <div class="topnav">
-        {{$selected := .Selected}}
         {{range $i, $f := .Files}}        
-            {{if eq $selected $i}}
-                <a class="active" href="/{{$f}}">{{$f}}</a>
-            {{else}}
-                <a href="/{{$f}}">{{$f}}</a>
-            {{end}}
+        <a id="nav{{$i}}" onClick="setMD({{- $i -}})">{{$f}}</a>
         {{end}}
     </div> 
     <div id="content"></div>
-    <script src="/static/marked.min.js"></script>
+    <script src="marked.min.js"></script>
     <script>
-        document.getElementById('content').innerHTML =
-            marked.parse({{.Content}});
+        marked.use({
+            gfm: true,
+        })
+
+        const contentArray = [
+        {{range $i, $c := .Contents}}
+            ["nav{{$i}}", {{$c}}], 
+        {{end}}
+        ]
+
+        selectedIndex = 0
+
+        function setMD(i) {
+            document.getElementById("content").innerHTML =
+                marked.parse(contentArray[i][1]);
+            document.getElementById("nav"+selectedIndex).removeAttribute("class")
+            document.getElementById("nav"+i).setAttribute("class", "active")
+
+            selectedIndex = i
+        }
+
+        setMD(0)
     </script>
 </body>
 </html> 

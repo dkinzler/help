@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,51 +14,76 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type Args struct {
-	contentDir string
-	template   string
-	address    string
-	port       int
-}
-
 func main() {
 	var contentDir string
-	var template string
+	var templateFile string
+	var outFile string
+
 	var address string
 	var port int
+	var staticDir string
+	var file string
 
 	app := &cli.App{
 		Name: "help",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:        "contentDir",
-				Value:       "content",
-				Destination: &contentDir,
+		Commands: []*cli.Command{
+			{
+				Name: "render",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "contentDir",
+						Aliases:     []string{"c"},
+						Value:       "content",
+						Destination: &contentDir,
+					},
+					&cli.StringFlag{
+						Name:        "templateFile",
+						Aliases:     []string{"t"},
+						Value:       "template.html",
+						Destination: &templateFile,
+					},
+					&cli.StringFlag{
+						Name:        "outFile",
+						Aliases:     []string{"o"},
+						Value:       "site/index.html",
+						Destination: &outFile,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					return renderTemplate(contentDir, templateFile, outFile)
+				},
 			},
-			&cli.StringFlag{
-				Name:        "template",
-				Value:       "template.html",
-				Destination: &template,
+			{
+				Name: "serve",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "address",
+						Aliases:     []string{"a"},
+						Value:       "",
+						Destination: &address,
+					},
+					&cli.IntFlag{
+						Name:        "port",
+						Aliases:     []string{"p"},
+						Value:       9001,
+						Destination: &port,
+					},
+					&cli.StringFlag{
+						Name:        "staticDir",
+						Value:       "static",
+						Destination: &staticDir,
+					},
+					&cli.StringFlag{
+						Name:        "file",
+						Aliases:     []string{"f"},
+						Value:       "site/index.html",
+						Destination: &file,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					return runServer(address, port, staticDir, file)
+				},
 			},
-			&cli.StringFlag{
-				Name:        "address",
-				Value:       "",
-				Destination: &address,
-			},
-			&cli.IntFlag{
-				Name:        "port",
-				Value:       9001,
-				Destination: &port,
-			},
-		},
-		Action: func(*cli.Context) error {
-			args := Args{
-				contentDir: contentDir,
-				template:   template,
-				address:    address,
-				port:       port,
-			}
-			return run(args)
 		},
 	}
 
@@ -68,83 +92,43 @@ func main() {
 	}
 }
 
-func run(args Args) error {
-	files, err := parseFiles(args.contentDir)
+func renderTemplate(contentDir string, templateFile string, outFile string) error {
+	files, err := parseFiles(contentDir)
 	if err != nil {
 		return err
 	}
 
-	template, err := NewTemplate(args.template)
-	if err != nil {
-		return err
-	}
-
-	runServer(files, template, args.address, args.port)
-
-	return nil
-}
-
-func runServer(files []File, template *Template, address string, port int) error {
-	e := echo.New()
-
-	h := NewHandler(files)
-	e.Static("/static", "static")
-	e.GET("/", h.handle)
-	e.GET("/:name", h.handle)
-
-	e.Renderer = template
-
-	if err := e.Start(fmt.Sprintf("%v:%v", address, port)); err != http.ErrServerClosed {
-		return err
-	}
-
-	return nil
-}
-
-type Handler struct {
-	files     []File
-	fileNames []string
-}
-
-func NewHandler(files []File) Handler {
 	fileNames := make([]string, len(files))
+	contents := make([]string, len(files))
 	for i, f := range files {
 		fileNames[i] = f.name
+		c, err := readContent(f.path)
+		if err != nil {
+			return err
+		}
+		contents[i] = c
 	}
-	return Handler{
-		files:     files,
-		fileNames: fileNames,
+
+	templateData := TemplateData{Files: fileNames, Contents: contents}
+
+	templateName := filepath.Base(templateFile)
+	t := template.New(templateName)
+	t, err = t.ParseFiles(templateFile)
+	if err != nil {
+		return err
 	}
+
+	w, err := os.Create(outFile)
+	if err != nil {
+		return err
+	}
+
+	return t.ExecuteTemplate(w, templateName, templateData)
 }
 
 type TemplateData struct {
 	Files    []string
-	Selected int
-	Content  string
-}
-
-func (h Handler) handle(c echo.Context) error {
-	name := c.Param("name")
-	index, file := h.matchFile(name)
-	content, err := readContent(file.path)
-	if err != nil {
-		return err
-	}
-	return c.Render(http.StatusOK, templateName, TemplateData{h.fileNames, index, content})
-}
-
-func (h Handler) matchFile(name string) (int, File) {
-	if name == "" {
-		return 0, h.files[0]
-	}
-
-	for i, f := range h.files {
-		if f.name == name {
-			return i, f
-		}
-	}
-
-	return 0, h.files[0]
+	Contents []string
 }
 
 func readContent(f string) (string, error) {
@@ -193,21 +177,15 @@ func parseFiles(contentDir string) ([]File, error) {
 	return result, nil
 }
 
-const templateName = "template.html"
+func runServer(address string, port int, staticDir, file string) error {
+	e := echo.New()
 
-type Template struct {
-	templates *template.Template
-}
+	e.Static("/static", staticDir)
+	e.File("/", file)
 
-func NewTemplate(templateFile string) (*Template, error) {
-	t := template.New(templateName)
-	t, err := t.ParseFiles(templateFile)
-	if err != nil {
-		return nil, err
+	if err := e.Start(fmt.Sprintf("%v:%v", address, port)); err != http.ErrServerClosed {
+		return err
 	}
-	return &Template{t}, err
-}
 
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+	return nil
 }
