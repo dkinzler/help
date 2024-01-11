@@ -1,0 +1,25 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="topnav">
+        {{$selected := .Selected}}
+        {{range $i, $f := .Files}}        
+            {{if eq $selected $i}}
+                <a class="active" href="/{{$f}}">{{$f}}</a>
+            {{else}}
+                <a href="/{{$f}}">{{$f}}</a>
+            {{end}}
+        {{end}}
+    </div> 
+    <div id="content"></div>
+    <script src="/static/marked.min.js"></script>
+    <script>
+        document.getElementById('content').innerHTML =
+            marked.parse({{.Content}});
+    </script>
+</body>
+</html> 
