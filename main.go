@@ -21,7 +21,7 @@ func main() {
 
 	var address string
 	var port int
-	var staticDir string
+	var siteDir string
 	var file string
 
 	app := &cli.App{
@@ -69,9 +69,9 @@ func main() {
 						Destination: &port,
 					},
 					&cli.StringFlag{
-						Name:        "staticDir",
-						Value:       "static",
-						Destination: &staticDir,
+						Name:        "siteDir",
+						Value:       "site",
+						Destination: &siteDir,
 					},
 					&cli.StringFlag{
 						Name:        "file",
@@ -81,7 +81,7 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					return runServer(address, port, staticDir, file)
+					return runServer(address, port, siteDir, file)
 				},
 			},
 		},
@@ -177,11 +177,11 @@ func parseFiles(contentDir string) ([]File, error) {
 	return result, nil
 }
 
-func runServer(address string, port int, staticDir, file string) error {
+func runServer(address string, port int, siteDir string, file string) error {
 	e := echo.New()
 
-	e.Static("/static", staticDir)
 	e.File("/", file)
+	e.Static("/", siteDir)
 
 	if err := e.Start(fmt.Sprintf("%v:%v", address, port)); err != http.ErrServerClosed {
 		return err
