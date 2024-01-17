@@ -31,6 +31,7 @@ use outputs of another command as arguments |
 
 | Others | |
 | --- | --- |
+`fd pattern root_path` | newer find
 `find root_path -name '*.ext'` | find files, options `-type d -maxdepth -mindepth -size -mtime` and more
 `tr` | replace characters in input
 `cut -d , -f 5- file` | extract segments of each line of the input
