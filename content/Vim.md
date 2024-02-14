@@ -80,6 +80,10 @@ How to make better macros
 * avoid `hjkl` motions if possible, if you e.g. use `f` or `/` to find it makes it more repeatable
 * can be nested and recursive, i.e. call another macro or itself
 
+| Ex Commands | |
+| --- | --- |
+`C-n / C-p` | next / prev command in history
+
 | LSP, Diagnostics and co. | |
 | --- | --- |
 `K K` |  to move into hover window
