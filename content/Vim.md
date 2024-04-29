@@ -22,6 +22,8 @@
 
 ### Navigating files
 * fuzzy finder/telescope to open
+* `gs` `gws` to fuzzy find LSP symbols
+    * can type e.g. `function` after keyword to match only a certain type of symbol
 * quickfix list
 	* populate
 		* with search results from telescope `C-q`
