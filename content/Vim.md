@@ -5,6 +5,7 @@
 `ea` | insert at end of word
 `<esc>Ea` | when inserting `()` move after `)` and keep typing
 
+
 | Move between lines | |
 | --- | --- |
 `5j` | relative jumps
@@ -29,7 +30,7 @@
 		* with search results from telescope `C-q`
 		* run a tool like make/compiler/linter/tests that output a list of files + lines
 	* how to use
-		* `:cope(n)` show list or use trouble/telescope
+		* `:cope(n)` show list or use telescope
 		* `:cnext :cprev` or keybinds to jump to next/prev
 		* `:cdo` to apply an operation to every item in quickfix list, can be used with macros
 		* can have multiple quickfix lists and you can move between them `:colder  :cnewer`
@@ -55,12 +56,32 @@
 `C-x` | decrement
 `:earlier 1f` | undo to last write, back with `later 1f`
 
+
 | Text objects | |
 | --- | --- |
-`b = (), B = {}` |
-`aa / ia` | argument
-`af / if` | function
-`ai / ii` | blocks, `ii` works for languages like python that don't have {}, `ai` works for both python like and those with explicit blocks, can e.g. change an entire if, for, ...
+`ax / ix` | outer/inner textobject
+`anx / inx / alx / ilx` | next/last instance of outer/inner textobject
+`b` | bracket `( { [`
+`B` | curly bracket `{`
+`q` | quote
+`a` | argument
+`F` | function
+`f` | function call
+`i` | block (if, for, ...), support depends on language
+
+
+| Ex Commands | |
+| --- | --- |
+`C-n / C-p` | next / prev command in history
+`q: / C-f` | open command line window from normal/command line mode
+`:quit :close :exit` | close command line window
+`:norm` | to run a key sequence in normal mode
+`:15,20norm @q` | replay macro on lines 15 to 20
+`:s` | search and replace, see below
+`:5,$x` | last line in file
+`:%x` | entire file
+`:1,/that line/x` | first line that matches "that line"
+
 
 | Search and Replace | |
 | --- | --- |
@@ -71,26 +92,23 @@
 `:%s/old/new/gi` | ignore case
 `:g/pattern/norm A` |  run command on every line with a matches
 
+
 | Macros | |
 | --- | --- |
 `qx` |  record into register x
 `q` |  stop recording
 `@x` |  replay x
 
-How to make better macros
+For better macros
 * `^` in the beginning to go to start of line, so that you can later apply the macro anywhere in the line
 * avoid `hjkl` motions if possible, if you e.g. use `f` or `/` to find it makes it more repeatable
 * can be nested and recursive, i.e. call another macro or itself
 
-| Ex Commands | |
-| --- | --- |
-`C-n / C-p` | next / prev command in history
 
 | LSP, Diagnostics and co. | |
 | --- | --- |
 `K K` |  to move into hover window
 `L` | signature help
-`tt` | toggle trouble
 `ee` | show diagnostics
 `en / ep` | next/prev diagnostic
 
