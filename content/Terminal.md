@@ -1,5 +1,4 @@
-
-| Terminal | |
+| General | |
 | --- | --- |
 `Ctrl+Space` | accept result of autosuggestions
 `Ctrl+t` | insert result of fzf
@@ -8,28 +7,44 @@
 `Ctrl+w/u/a/e` | delete word/line/start/end
 `!!` | last command
 `!*`  | last command's parameters
-`Key=value; command` | set variables
-`ls **/*.txt`  | all dirs and subdirs
-`ls **/*(.Lm+250)` | files larger than 250mb
-`ls \| xargs -i cmd {}` | repeat for every input, placeholder `{}`
-`man ascii` | for ASCII table
-`take x`  | to create directory and cd
-`rd` | remove dir
-`d / cd -3`  | print last pwds, goto 3 in that list
-`copypath`  | copy pwd to clipboard
-`copyfile`  | copy file contents
-`glances` |  system monitor
-`httpie` |  http client
+`Key=value; command` | run command with variables
 
-| Regex (Perl) | |
+<br>
+
+## Tmux
+| General | |
 | --- | --- |
-`.`  | any char
-`x?` | optional
-`x* / x+ / x{n}` | 0+ / 1+ / n times
-`x \| y` | or
-`()` |  grouping
-`[a-z0-9] [aez]` | char sets 
-`^x` |  x at start 
-`x$` |  x at end
-`\d \w` |  digit, letter + digit + _ 
-`grep -P "^a[0-9]{12}.txt"` | 
+`:` | enter command mode
+`Ctrl+d` | kill pane/window/session
+`[` | enter copy mode, vim keybinds work
+`s` | list sessions
+`w` | list sessions + windows
+
+| Sessions | |
+| --- | --- |
+`:new -s xyz` |  start a new session
+`:kill-session -t xyz` | kill a session
+`$` | rename session
+`d` | detach from session
+`( / )` |  previous/next session
+
+| Windows | |
+| --- | --- |
+`c` | create 
+`,` | rename
+`&` | close 
+`p / n` | previous/next
+`0...9` | window by number
+`:swap-window -s 2 -t 1` |  swap windows, `-t -1` to move current to the left
+
+| Panes | |
+| --- | --- |
+`Ctrl+h/j/k/l` |  goto pane
+`;` |  goto last active
+`% / "` |  split vertically / horizontally
+`{ / }` | move current pane left / right
+`Space` |  toggle pane layouts
+`q` |  show pane numbers
+`z` |  toggle zoom 
+`!` | convert pane to window
+`h/j/k/l` | resize
