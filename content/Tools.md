@@ -33,15 +33,25 @@
 `rg --hidden --no-ignore exp` | also search hidden files and those in .gitignore
 `rg --files-with-matches exp` | only list matched files in output
 
+| sed | |
+| --- | --- |
+`sed [options] command [file]` | basic usage, by default reads stdin, operates line by line
+`sed '1,10 d'` | delete lines 1 to 10, relative range `5,+2`
+`sed '/pattern/ d'` | delete lines matching pattern
+`sed 's/a/b/'` | replace first occurence of pattern a with b in all lines, can use `/2` to replace only second instance
+`sed 's/a/b/g'` | replace all occurences of pattern a with b in all lines
+`sed 's/a/b/i'` | ignore case
+`sed 's/a/&/'` | can refer to matched text with `&`, can also refer to regex capture groups `\1, \2, ...`
+`a i c` | commands to append/insert/change a line
+
 | jq | |
 | --- | --- |
 `... \| jq '.'` | output pretty json
 `... \| jq '.key1, .key2'` | select specific keys
 `... \| jq '.[] \| {k1: .a.b, k2: .a.c}'` | chain filters, for each element of array will create a new object with keys k1, k2
 
-| Editing text | |
+| awk | |
 | --- | --- |
-`... \| sed 's/a/b/g'` | replace all occurences of a with b in all input lines
 `awk '/foo/ {print $5}' file` | for every line containing `foo` print fifth column, in space-separated file
 `awk -F ',' ...` | use , as separator
 `awk 'NR%3==1' file` | print every third line
