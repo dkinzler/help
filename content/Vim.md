@@ -38,9 +38,10 @@
 
 | Editing | |
 | --- | --- |
-`C+w` | delete word before cursor
-`C+j` | insert line break
-`C+t/d` | indent/deindent
+`C-w` | delete word before cursor
+`C-j` | insert line break
+`C-t/d` | indent/deindent
+`C-j/k` | move line down/up in visual mode
 `sa / sd / sr` | surround
 `ciw fn() <esc> p`	| surround word with function call
 `J / gJ` | join line below (without spaces)
@@ -109,6 +110,7 @@ For better macros
 | --- | --- |
 `K K` |  to move into hover window
 `L` | signature help
+`C-s` | signature help (insert mode)
 `ee` | show diagnostics
 `en / ep` | next/prev diagnostic
 
